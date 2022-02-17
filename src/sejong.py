@@ -176,7 +176,7 @@ def getFromMonthKey(year, month, monthKey):
     hangul = "\n\n".join(hanguls)
     hanza = "\n\n".join(hanzas)
 
-    year_hangul = f"세종{year}년"
+    year_hangul = f"세종 {year}년"
     if year == 0:
         year_hangul = "세종 즉위년"
 
