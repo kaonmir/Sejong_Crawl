@@ -188,9 +188,9 @@ def getFromMonthKey(year, month, monthKey):
     if year == 0:
         year_hangul = "세종 즉위년"
 
-    # 세종1년 (1418년) 무술년 (무술년) 8월
-    gan = ganji(year+1417)
-    title_hangul = f"{year_hangul} ({year+1417}년) {gan}년 ({getGanzFromHangul(gan)}年) {month}"
+    # 세종 즉위년 (1418년) 무술년 (무술년) 8월
+    gan = ganji(year+1418)
+    title_hangul = f"{year_hangul} ({year+1418}년) {gan}년 ({getGanzFromHangul(gan)}年) {month}"
     # 원문 (세종실록 1권, 세종 즉위년 8월)
     title_hanza = f"원문 ({volume}, {year_hangul} {month})"
 
