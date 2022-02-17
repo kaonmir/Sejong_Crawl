@@ -50,6 +50,7 @@ def getFromUrl(url):
     if not isSiteValid(res):
         raise "Invalid url on getFromUrl function"
     soup = bs(res.content, "html.parser")
+    gakju = ""
 
     # finding volume and date
     parent = soup.find("span", "tit_loc")
@@ -61,22 +62,21 @@ def getFromUrl(url):
     # finding hangul
     hangul = soup.find("div", "ins_left_in").find("div", "ins_view_pd")
     # Remove footnotes
-    foots = hangul.findAll("a", "idx_annotation04_foot")
-    for foot in foots:
-        foot.extract()
     foots = hangul.findAll("a", "footnote_super")
     for foot in foots:
-        foot.extract()
+        foot.find("sup").extract()
+        foot.string = foot.text + "@@"
     foots = hangul.findAll("ul", "ins_source")
     for foot in foots:
         foot.extract()
-    foots = hangul.findAll("ul", "ins_footnote")
-    for foot in foots:
-        foot.extract()
+    footnotes = hangul.find("ul", "ins_footnote").find("li", "clear2")
+    if footnotes != None:
+        gakju = "\n[註 ".join(
+            list(map(lambda f: f.strip(), footnotes.text.split("[註 ")))).strip()
     # Paragraph
     paragraph_p = list(map(lambda p: p.text.strip(),
                        hangul.findAll("p", "paragraph")))
-    paragraph_hangul = "\n".join(paragraph_p)
+    paragraph_hangul = "\n\n".join(paragraph_p)
 
     # finding hanza
     hanza = soup.find("div", "ins_right_in").find("div", "ins_view_pd")
@@ -87,7 +87,7 @@ def getFromUrl(url):
                        hanza.findAll("p", "paragraph")))
     paragraph_hanza = "\n\n".join(paragraph_p)
 
-    return [volume, date, paragraph_hangul, paragraph_hanza]
+    return [volume, date, paragraph_hangul, paragraph_hanza, gakju]
 
 
 # %%
@@ -126,19 +126,22 @@ def getFromDay(monthKey, day):
 
     hanguls = []
     hanza_answer = ""
+    gakjus = ""
 
     if len(days[0]) == 0:
         return
 
     for url in days[0][1]:
         print(".", end="")
-        volume, date, hangul, hanza = getFromUrl(url)
+        volume, date, hangul, hanza, gakju = getFromUrl(url)
 
         hanguls.append(hangul.strip())
         hanza_answer = hanza_answer + "\n" + hanza
+        gakjus = gakjus + "\n" + gakju
+        gakjus = gakjus.strip()
 
     day_h = date.split(" ")[-2]
-    return volume, date, day_h + "일(" + getGanzFromHangul(day_h) + "日-" + str(day) + "일)에 " + "\n\n○ ".join(hanguls), hanza_answer
+    return volume, date, day_h + "일(" + getGanzFromHangul(day_h) + "日-" + str(day) + "일)에 " + "\n\n○ ".join(hanguls), hanza_answer, gakjus
 
 
 # %%
@@ -149,11 +152,13 @@ def _safe_open_w(path):
     return open(path, 'w', encoding="UTF8")
 
 
-def saveFile(year, month, hangul, hanza):
+def saveFile(year, month, hangul, hanza, gakju):
     with _safe_open_w(f'{year}/{month} 국역.txt') as f:
         f.write(hangul)
     with _safe_open_w(f'{year}/{month} 원문.txt') as f:
         f.write(hanza)
+    with _safe_open_w(f'{year}/{month} 주석.txt') as f:
+        f.write(gakju)
 
 
 def getFromMonthKey(year, month, monthKey):
@@ -161,13 +166,16 @@ def getFromMonthKey(year, month, monthKey):
     months = getDayUrlFromMonthKey(monthKey)
     hanguls = []
     hanzas = []
+    gakjus = ""
     for day, urls in months:
         if len(urls) == 0:
             continue
         print(f"{day}(", end="")
-        volume, date, hangul, hanza = getFromDay(monthKey, day)
+        volume, date, hangul, hanza, gakju = getFromDay(monthKey, day)
         hanguls.append(hangul)
         hanzas.append(hanza)
+        gakjus = gakjus + "\n" + gakju
+        gakjus = gakjus.strip()
         print(f") ", end="")
     print("")
 
@@ -187,7 +195,7 @@ def getFromMonthKey(year, month, monthKey):
     title_hanza = f"원문 ({volume}, {year_hangul} {month})"
 
     saveFile(year_hangul, month, volume + "\n" + title_hangul +
-             "\n\n" + hangul, title_hanza + "\n" + hanza)
+             "\n\n" + hangul, title_hanza + "\n" + hanza, gakjus)
 
 
 # %%
@@ -197,6 +205,3 @@ def getFromYear(year, start=0, end=15):
         if idx < start or end < idx:
             continue
         getFromMonthKey(year, month, monthKey)
-
-# %%
-# getFromYear(0, start=0, end=3)
