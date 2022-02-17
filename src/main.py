@@ -71,8 +71,8 @@ def getFromUrl(url):
         foot.extract()
     footnotes = hangul.find("ul", "ins_footnote").find("li", "clear2")
     if footnotes != None:
-        gakju = "[\n".join(
-            list(map(lambda f: f.strip(), footnotes.text.split("[")))).strip()
+        gakju = "\n[註 ".join(
+            list(map(lambda f: f.strip(), footnotes.text.split("[註 ")))).strip()
     # Paragraph
     paragraph_p = list(map(lambda p: p.text.strip(),
                        hangul.findAll("p", "paragraph")))
