@@ -15,4 +15,4 @@ if len(sys.argv) > 3:
     end = int(sys.argv[3])
 
 print(f"Program Start, year={year} start={start} end={end}")
-getFromYear(0, start=0, end=3)
+getFromYear(year, start, end)
