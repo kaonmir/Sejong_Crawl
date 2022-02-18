@@ -153,7 +153,7 @@ def _safe_open_w(path):
 
 
 def saveFile(year, month, hangul, hanza, gakju):
-    path = f'/content/drive/MyDrive/Sejong/{year}/{month}'
+    path = f'./{year}/{month}'
     with _safe_open_w(f'{path} 국역.txt') as f:
         f.write(hangul)
     with _safe_open_w(f'{path} 원문.txt') as f:
