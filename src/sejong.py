@@ -153,11 +153,12 @@ def _safe_open_w(path):
 
 
 def saveFile(year, month, hangul, hanza, gakju):
-    with _safe_open_w(f'{year}/{month} 국역.txt') as f:
+    path = f'/content/drive/MyDrive/Sejong/{year}/{month}'
+    with _safe_open_w(f'{path} 국역.txt') as f:
         f.write(hangul)
-    with _safe_open_w(f'{year}/{month} 원문.txt') as f:
+    with _safe_open_w(f'{path} 원문.txt') as f:
         f.write(hanza)
-    with _safe_open_w(f'{year}/{month} 주석.txt') as f:
+    with _safe_open_w(f'{path} 주석.txt') as f:
         f.write(gakju)
 
 
@@ -205,3 +206,5 @@ def getFromYear(year, start=0, end=15):
         if idx < start or end < idx:
             continue
         getFromMonthKey(year, month, monthKey)
+
+# %%
